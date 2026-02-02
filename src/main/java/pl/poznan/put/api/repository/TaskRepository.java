@@ -12,4 +12,28 @@ public interface TaskRepository extends JpaRepository<Task, String> {
   @Modifying
   @Query("DELETE FROM Task t WHERE t.createdAt < :cutoff")
   void deleteTasksOlderThan(Instant cutoff);
+
+  @Transactional
+  @Modifying
+  @Query(
+      value =
+          "DELETE FROM model_svgs WHERE task_id IN (SELECT id FROM task WHERE created_at < :cutoff)",
+      nativeQuery = true)
+  void deleteModelSvgsOlderThan(Instant cutoff);
+
+  @Transactional
+  @Modifying
+  @Query(
+      value =
+          "DELETE FROM removal_reasons WHERE task_id IN (SELECT id FROM task WHERE created_at < :cutoff)",
+      nativeQuery = true)
+  void deleteRemovalReasonsOlderThan(Instant cutoff);
+
+  @Transactional
+  @Modifying
+  @Query(
+      value =
+          "DELETE FROM molprobity_responses WHERE task_id IN (SELECT id FROM task WHERE created_at < :cutoff)",
+      nativeQuery = true)
+  void deleteMolprobityResponsesOlderThan(Instant cutoff);
 }

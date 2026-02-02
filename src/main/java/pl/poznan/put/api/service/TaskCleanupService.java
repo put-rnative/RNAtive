@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.poznan.put.api.repository.TaskRepository;
 
 @Service
@@ -15,8 +16,12 @@ public class TaskCleanupService {
   }
 
   @Scheduled(cron = "0 0 0 * * ?") // Every day at midnight
+  @Transactional
   public void cleanUpOldTasks() {
     Instant cutoff = Instant.now().minus(14, ChronoUnit.DAYS);
+    taskRepository.deleteModelSvgsOlderThan(cutoff);
+    taskRepository.deleteRemovalReasonsOlderThan(cutoff);
+    taskRepository.deleteMolprobityResponsesOlderThan(cutoff);
     taskRepository.deleteTasksOlderThan(cutoff);
   }
 }
